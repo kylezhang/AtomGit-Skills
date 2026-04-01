@@ -1,6 +1,6 @@
 # AtomGit Skill
 
-跨平台 AtomGit skill，面向 Codex、Claude Code 和 OpenClaw。仓库根目录就是 skill 根目录，因此核心入口放在 [`SKILL.md`](./SKILL.md)，更细的说明按需拆分到 [`references/`](./references/)。
+仓库根目录就是 skill 根目录，核心入口放在 [`SKILL.md`](./SKILL.md)，更细的说明按需拆分到 [`references/`](./references/)。
 
 ## 结构
 
