@@ -77,24 +77,3 @@ Some runtimes add extra namespace wrappers around MCP tools. Always use the exac
   [references/members.md](references/members.md)
 - AIHub:
   [references/aihub.md](references/aihub.md)
-
-## High-Frequency Playbooks
-
-### Review an AtomGit pull request
-
-1. Use `atomgit_get_repository_pulls` to list open pull requests.
-2. Use `atomgit_get_repository_pull`, `atomgit_get_repository_pull_files`, and `atomgit_get_repository_pull_commits` to inspect the change.
-3. Use `atomgit_create_repository_pull_comment` for line or summary feedback.
-4. Use `atomgit_process_repository_pull_review` only after the review is complete.
-
-### Create or update an AtomGit issue
-
-1. Inspect existing labels and milestones before creating or updating the issue.
-2. Use `atomgit_create_repository_issue` or `atomgit_update_repository_issue`.
-3. Use `atomgit_create_repository_issue_comment` for follow-up context instead of overwriting history.
-
-### Publish a release from an existing tag
-
-1. Use `atomgit_get_repository_tags` or `atomgit_get_release_by_tag` to confirm the tag state.
-2. Use `atomgit_create_repository_release` or `atomgit_update_repository_release`.
-3. Use the release and protected-tag references before touching production release flows.
