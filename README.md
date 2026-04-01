@@ -9,12 +9,18 @@
 
 ## 依赖
 
-- [AtomGit MCP Server](https://atomgit.com/zkxw2008/AtomGit-MCP-Server)
-- `ATOMGIT_TOKEN`
+- 已手动配置好的 [AtomGit MCP Server](https://atomgit.com/zkxw2008/AtomGit-MCP-Server)
+- MCP 客户端环境中的 `ATOMGIT_TOKEN`
 
-AtomGit MCP Server 需要在第一次执行 AtomGit 任务之前，先按客户端级别完成安装和配置。当前仓库采用与官方 README 一致的思路：优先使用 `npx -y @atomgit.com/atomgit-mcp-server`，并在 MCP 客户端配置中注入 `ATOMGIT_TOKEN`。
+这个 skill 本身不会替用户安装 MCP 服务，也不会在任务中自动执行远程安装命令。它假定 AtomGit MCP 已经由操作者在客户端级别手动核验并配置完成，然后再由 skill 教 agent 如何安全使用已暴露的 AtomGit 工具。
 
 安装、权限和安全边界请看 [references/setup-and-safety.md](./references/setup-and-safety.md)。
+
+## 上游来源
+
+- Skill 源仓库：<https://atomgit.com/zkxw2008/AtomGit-Skills>
+- MCP Server 源仓库：<https://atomgit.com/zkxw2008/AtomGit-MCP-Server>
+- MCP Server npm 包：<https://www.npmjs.com/package/@atomgit.com/atomgit-mcp-server>
 
 ## 设计目标
 

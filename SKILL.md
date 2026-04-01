@@ -1,6 +1,8 @@
 ---
 name: atomgit
 description: "Use this skill when the user explicitly mentions AtomGit or atomgit.com, or needs to inspect or change AtomGit repositories, pull requests, issues, branches, releases, tags, permissions, organizations, enterprises, kanban boards, webhooks, or AIHub features through the AtomGit MCP server."
+homepage: https://atomgit.com/zkxw2008/AtomGit-Skills
+metadata: {"openclaw":{"homepage":"https://atomgit.com/zkxw2008/AtomGit-Skills","requires":{"env":["ATOMGIT_TOKEN"]},"primaryEnv":"ATOMGIT_TOKEN"}}
 ---
 
 # AtomGit
@@ -11,7 +13,7 @@ Use this skill only for AtomGit work. If the user only says "repo", "PR", "issue
 
 1. Confirm the request is about AtomGit.
 2. Inspect the runtime tool list before planning any repository action.
-3. If AtomGit tools are not exposed yet, stop the workflow and follow [references/setup-and-safety.md](references/setup-and-safety.md) to install and configure the AtomGit MCP server first.
+3. If AtomGit tools are not exposed yet, stop the workflow and follow [references/setup-and-safety.md](references/setup-and-safety.md) to connect an AtomGit MCP server manually using the official server docs. Do not install packages or request secrets automatically inside the task.
 4. Match the exposed AtomGit MCP tool names exactly.
 5. Prefer read operations before write operations.
 6. Gather the identifiers you need before mutating anything:
@@ -20,7 +22,7 @@ Use this skill only for AtomGit work. If the user only says "repo", "PR", "issue
    - `branch`, `tag`, `path`, or `sha` when the workflow needs them
 7. Confirm destructive or org-wide changes before executing them.
 
-Install and configure AtomGit MCP once per runtime or client before the first AtomGit task. Do not wait until after a business request fails if the tool list already shows the server is missing.
+AtomGit MCP must be installed and configured outside this skill before the first AtomGit task. Do not wait until after a business request fails if the tool list already shows the server is missing, and do not ask users to paste tokens into chat.
 
 ## Tool Naming
 

@@ -4,61 +4,39 @@ Read this file when the runtime cannot find AtomGit tools, the request needs aut
 
 ## When Setup Happens
 
-Install and configure AtomGit MCP before the first AtomGit task in a given client or runtime.
+Connect AtomGit MCP before the first AtomGit task in a given client or runtime. Treat MCP installation and token setup as operator-managed prerequisites, not as actions the skill should perform automatically inside a task.
 
 - If the runtime already exposes AtomGit tools, do not reinstall the server; continue with the business workflow.
 - If the runtime does not expose AtomGit tools, pause the business workflow and complete MCP setup first.
 - If tools exist but calls fail with auth or scope errors, keep the server and fix the token or permissions.
 
-## Dependencies
+## Operator-Managed Prerequisites
 
 - [Node.js](https://nodejs.org/) `>= 18`
-- AtomGit MCP Server:
-  `npx -y @atomgit.com/atomgit-mcp-server`
+- AtomGit MCP Server source:
+  <https://atomgit.com/zkxw2008/AtomGit-MCP-Server>
+- AtomGit MCP Server npm package:
+  <https://www.npmjs.com/package/@atomgit.com/atomgit-mcp-server>
 - Personal access token:
   `ATOMGIT_TOKEN`
 
-The official README uses `npx` as the primary startup path. Global installation is optional, not required for the standard setup flow.
+Review the upstream repository or package page before installing the MCP server. This skill assumes the server has already been installed and verified outside the task runtime.
 
 ## Minimal Runtime Bring-Up
 
-1. Create an AtomGit personal access token.
-2. Configure `ATOMGIT_TOKEN` in the MCP client environment.
-3. Start the server with `npx -y @atomgit.com/atomgit-mcp-server`.
-4. Restart the MCP client if needed so the new server appears in the runtime tool list.
+1. Review the official AtomGit MCP server source or package listing.
+2. Install and configure the server manually at the client level.
+3. Configure `ATOMGIT_TOKEN` in the MCP client environment.
+4. Restart the MCP client if needed so the AtomGit tools appear in the runtime tool list.
 
 ## Client Configuration Pattern
 
-The official README configures AtomGit MCP at the client layer rather than inside each task.
-
-```json
-{
-  "mcpServers": {
-    "atomgit": {
-      "command": "npx",
-      "args": ["-y", "@atomgit.com/atomgit-mcp-server"],
-      "env": {
-        "ATOMGIT_TOKEN": "your_ATOMGIT_TOKEN",
-        "ATOMGIT_ENABLE_DANGEROUS_TOOLS": "false"
-      }
-    }
-  }
-}
-```
-
-On Windows clients that require it, use `npx.cmd` instead of `npx`.
+Configure AtomGit MCP at the client layer rather than inside each task. Keep `ATOMGIT_ENABLE_DANGEROUS_TOOLS=false` unless the user explicitly requests an operation that needs those tools and confirms the risk.
 
 ## Token Setup
 
 Create a token at [AtomGit personal token settings](https://atomgit.com/setting/token-classic).
-
-```bash
-# Linux or macOS
-export ATOMGIT_TOKEN="your-personal-access-token"
-
-# Windows PowerShell
-$env:ATOMGIT_TOKEN="your-personal-access-token"
-```
+Store the token in your MCP client configuration or secret store. Do not paste it into chat transcripts, prompts, or repository files.
 
 ## Recommended Permission Scope
 
@@ -67,8 +45,13 @@ $env:ATOMGIT_TOKEN="your-personal-access-token"
 | Read public repositories | Basic access |
 | Read private repositories | `repo` read |
 | Create or update repository content | `repo` write |
-| Manage organization members | `write:org` |
-| Enterprise administration | `admin:enterprise` |
+
+For most users, start with the smallest repo-scoped token that supports the immediate task.
+
+Only use elevated scopes for explicit admin workflows:
+
+- `write:org` only when the user explicitly asks to manage organization membership or settings.
+- `admin:enterprise` only for explicit enterprise administration, and preferably with a dedicated token.
 
 ## Safety Rules
 
@@ -78,6 +61,7 @@ $env:ATOMGIT_TOKEN="your-personal-access-token"
 - Use a dedicated high-privilege token for org or enterprise administration instead of reusing a general token.
 - If the server exposes dangerous operations behind `ATOMGIT_ENABLE_DANGEROUS_TOOLS=true`, treat that as an extra gate, not as permission to skip confirmation.
 - The runtime-exposed tool set depends on `ATOMGIT_ENABLE_DANGEROUS_TOOLS`; docs may describe more tools than the current session actually exposes.
+- If the MCP server is missing, pause the task and ask the operator to install or connect it manually after reviewing the upstream source.
 
 ## Common Failure Modes
 
