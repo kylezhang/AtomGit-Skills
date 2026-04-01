@@ -1,0 +1,4 @@
+interface:
+  display_name: "AtomGit"
+  short_description: "Operate AtomGit workflows via MCP"
+  default_prompt: "Use $atomgit to inspect or change AtomGit repositories, pull requests, issues, releases, organizations, or enterprise resources through the AtomGit MCP server."

@@ -1,162 +1,100 @@
 ---
 name: atomgit
-description: |
-  AtomGit Skill — 通过 AtomGit MCP Server 操作 AtomGit 代码托管平台的完整指南。
-  
-  **触发关键词（不限于此列表，凡涉及 AtomGit 操作均应触发）：**
-  - AtomGit、atomgit.com、仓库、代码库
-  - Issue、PR、Pull Request、分支、Commit
-  - Release、Tag、Webhook、里程碑、标签
-  - 组织、企业、成员、权限、看板
-  - "我有哪些仓库"、"帮我看看这个 PR"、"新建一个 issue" 等
-  
-  本 Skill 包含 244 个工具，覆盖 17 个功能模块。遇到 AtomGit 相关任务，**请务必优先查阅本 Skill**。
-
-compatibility:
-  mcp_server: "@atomgit.com/atomgit-mcp-server"
-  requires_token: ATOMGIT_TOKEN
+description: "Use this skill when the user explicitly mentions AtomGit or atomgit.com, or needs to inspect or change AtomGit repositories, pull requests, issues, branches, releases, tags, permissions, organizations, enterprises, kanban boards, webhooks, or AIHub features through the AtomGit MCP server."
 ---
 
-# AtomGit Skill
+# AtomGit
 
-## 概述
+Use this skill only for AtomGit work. If the user only says "repo", "PR", "issue", "branch", or "tag" without saying AtomGit, do not assume this skill applies; confirm the platform first.
 
-本 Skill 指导 Claude 通过 **AtomGit MCP Server** 与 AtomGit 平台交互。MCP Server 提供 244 个工具，覆盖仓库、分支、提交、Issue、Pull Request、用户、组织、企业、看板、Release、Tag、标签、成员、里程碑、搜索、Webhook 和 AIHub。
+## Start Here
 
-**工具命名规范：** 所有工具名称以 `atomgit_` 前缀开头（MCP server 注册后自动加前缀），例如 `atomgit_get_repository`。
+1. Confirm the request is about AtomGit.
+2. Inspect the runtime tool list before planning any repository action.
+3. If AtomGit tools are not exposed yet, stop the workflow and follow [references/setup-and-safety.md](references/setup-and-safety.md) to install and configure the AtomGit MCP server first.
+4. Match the exposed AtomGit MCP tool names exactly.
+5. Prefer read operations before write operations.
+6. Gather the identifiers you need before mutating anything:
+   - `owner` and `repo`
+   - `number` for issues and pull requests
+   - `branch`, `tag`, `path`, or `sha` when the workflow needs them
+7. Confirm destructive or org-wide changes before executing them.
 
-## 快速开始
+Install and configure AtomGit MCP once per runtime or client before the first AtomGit task. Do not wait until after a business request fails if the tool list already shows the server is missing.
 
-### 1. 安装 MCP Server
+## Tool Naming
 
-```bash
-npm install -g @atomgit.com/atomgit-mcp-server
-```
+This skill uses canonical AtomGit MCP method names such as `atomgit_get_repository`.
 
-### 2. 获取 Access Token
+Some runtimes add extra namespace wrappers around MCP tools. Always use the exact tool name exposed by the current runtime instead of assuming a prefix format from an example.
 
-访问 [AtomGit 个人令牌设置](https://atomgit.com/setting/token-classic)，创建具有所需权限的 Token。
+## Common Identifiers
 
-### 3. 设置环境变量
+| Identifier | Typical meaning | Notes |
+| --- | --- | --- |
+| `owner` | Repository owner, username, or organization | Needed for most repository-scoped calls |
+| `repo` | Repository name | Needed with `owner` for most repository calls |
+| `number` | Issue or pull request number | Replaces older examples that used `issue_number` or `pull_number` |
+| `path` | Repository file path | Use with file-content and file-update calls |
+| `sha` | Commit or blob SHA | File updates usually need the current file SHA first |
+| `page`, `perPage` | Pagination controls | List endpoints often expose both |
 
-```bash
-export ATOMGIT_TOKEN="your-personal-access-token"
-```
+## Read References Only As Needed
 
-### 4. 验证连接
+- Setup, authentication, permissions, and safety:
+  [references/setup-and-safety.md](references/setup-and-safety.md)
+- Repositories:
+  [references/repositories.md](references/repositories.md)
+- Pull requests:
+  [references/pull-requests.md](references/pull-requests.md)
+- Issues:
+  [references/issues.md](references/issues.md)
+- Branches:
+  [references/branches.md](references/branches.md)
+- Commits:
+  [references/commits.md](references/commits.md)
+- Releases:
+  [references/releases.md](references/releases.md)
+- Tags:
+  [references/tags.md](references/tags.md)
+- Labels:
+  [references/labels.md](references/labels.md)
+- Milestones:
+  [references/milestones.md](references/milestones.md)
+- Users:
+  [references/users.md](references/users.md)
+- Organizations:
+  [references/organizations.md](references/organizations.md)
+- Enterprises:
+  [references/enterprises.md](references/enterprises.md)
+- Kanban:
+  [references/kanban.md](references/kanban.md)
+- Webhooks:
+  [references/webhooks.md](references/webhooks.md)
+- Search:
+  [references/search.md](references/search.md)
+- Members and permissions:
+  [references/members.md](references/members.md)
+- AIHub:
+  [references/aihub.md](references/aihub.md)
 
-```
-用户：我有哪些仓库？
-Claude：[调用 get_current_user_repos] 您有以下仓库...
-```
+## High-Frequency Playbooks
 
-## 快速参考 — 常用工具
+### Review an AtomGit pull request
 
-### 🗂️ 仓库
+1. Use `atomgit_get_repository_pulls` to list open pull requests.
+2. Use `atomgit_get_repository_pull`, `atomgit_get_repository_pull_files`, and `atomgit_get_repository_pull_commits` to inspect the change.
+3. Use `atomgit_create_repository_pull_comment` for line or summary feedback.
+4. Use `atomgit_process_repository_pull_review` only after the review is complete.
 
-| 操作 | 工具 |
-|------|------|
-| 查看仓库 | `get_repository` |
-| 列出我的仓库 | `get_current_user_repos` |
-| 创建仓库 | `create_user_repository` |
-| 获取文件内容 | `get_repository_content` |
-| 更新文件 | `update_repository_file` |
+### Create or update an AtomGit issue
 
-### 🐛 Issue
+1. Inspect existing labels and milestones before creating or updating the issue.
+2. Use `atomgit_create_repository_issue` or `atomgit_update_repository_issue`.
+3. Use `atomgit_create_repository_issue_comment` for follow-up context instead of overwriting history.
 
-| 操作 | 工具 |
-|------|------|
-| 列出 Issues | `get_repository_issues` |
-| 创建 Issue | `create_repository_issue` |
-| 关闭 Issue | `update_repository_issue` (state=closed) |
-| 添加评论 | `create_repository_issue_comment` |
+### Publish a release from an existing tag
 
-### 🔀 Pull Request
-
-| 操作 | 工具 |
-|------|------|
-| 列出 PRs | `get_repository_pulls` |
-| 创建 PR | `create_repository_pull` |
-| 合并 PR | `merge_repository_pull` |
-| 添加审查人 | `assign_repository_pull_approval_reviewers` |
-
-### 🌿 分支
-
-| 操作 | 工具 |
-|------|------|
-| 列出分支 | `get_repository_branches` |
-| 创建分支 | `create_repository_branch` |
-| 设置保护 | `create_branch_protection_rule` |
-
-### 📦 Release
-
-| 操作 | 工具 |
-|------|------|
-| 列出 Releases | `get_repository_releases` |
-| 创建 Release | `create_repository_release` |
-| 创建 Tag | `create_repository_tag` |
-
-## 常见参数
-
-| 参数 | 说明 | 示例 |
-|------|------|------|
-| `owner` | 仓库所有者 | `zkxw2008` |
-| `repo` | 仓库名称 | `AtomGit-MCP-Server` |
-| `branch` | 分支名称 | `main` |
-| `issue_number` | Issue 编号 | `42` |
-| `pull_number` | PR 编号 | `15` |
-| `tag` | Tag 名称 | `v1.0.0` |
-
-## 典型工作流
-
-### 代码审查
-
-```
-1. get_repository_pulls(owner, repo) → 获取 PR 列表
-2. get_repository_pull_files(owner, repo, pull_number) → 查看变更
-3. create_repository_pull_comment(...) → 添加评论
-4. process_repository_pull_review(..., action="approved") → 审核通过
-```
-
-### Issue 管理
-
-```
-1. get_repository_labels(owner, repo) → 查看标签
-2. create_repository_issue(owner, repo, title, body, labels) → 创建 Issue
-```
-
-### 发版
-
-```
-1. get_repository_tags(owner, repo) → 确认 Tag
-2. create_repository_release(owner, repo, tag_name, ...) → 发布
-```
-
-## 安全注意事项
-
-⚠️ **永远不要把 Token 提交到代码仓库**
-
-- 使用环境变量存储 Token
-- 定期轮换 Token（建议 90 天）
-- 按最小权限原则授予权限
-
-## 危险操作保护
-
-以下操作默认禁用（需设置 `ATOMGIT_ENABLE_DANGEROUS_TOOLS=true`）：
-- `delete_*` — 删除操作
-- `remove_*` — 移除操作
-- `leave_*` — 退出操作
-- `archive_*` — 归档操作
-- `transfer_*` — 转移操作
-
-**执行危险操作前，请务必向用户确认！**
-
-## 详细文档
-
-完整的工具列表和参数说明，请参阅 [atomgit/SKILL.md](./atomgit/SKILL.md)。
-
-## 相关链接
-
-- [AtomGit MCP Server](https://atomgit.com/zkxw2008/AtomGit-MCP-Server)
-- [AtomGit API 文档](https://docs.atomgit.com/docs/apis/)
-- [获取 Token](https://atomgit.com/setting/token-classic)
+1. Use `atomgit_get_repository_tags` or `atomgit_get_release_by_tag` to confirm the tag state.
+2. Use `atomgit_create_repository_release` or `atomgit_update_repository_release`.
+3. Use the release and protected-tag references before touching production release flows.

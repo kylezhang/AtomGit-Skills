@@ -1,64 +1,27 @@
-# AtomGit Skills for Claude
+# AtomGit Skill
 
-一键安装的 AtomGit 全功能 AI 助手技能包，通过 [AtomGit MCP Server](https://atomgit.com/zkxw2008/AtomGit-MCP-Server) 提供 **244 个工具**，覆盖 **17 个功能模块**。
+跨平台 AtomGit skill，面向 Codex、Claude Code 和 OpenClaw。仓库根目录就是 skill 根目录，因此核心入口放在 [`SKILL.md`](./SKILL.md)，更细的说明按需拆分到 [`references/`](./references/)。
 
-## 安装方式
+## 结构
 
-直接安装此 Skill，无需配置多个独立 Skill。
+- `SKILL.md`：给 agent 读的主入口，只保留触发语义、工具命名约定和高频工作流
+- `references/`：按 17 个 AtomGit 分类拆分的渐进披露文档，另含独立 setup/safety 文档
+- `agents/openai.yaml`：Codex UI 元数据
 
-## 快速开始
+## 依赖
 
-```bash
-# 1. 安装 AtomGit MCP Server
-npm install -g @atomgit.com/atomgit-mcp-server
+- [AtomGit MCP Server](https://atomgit.com/zkxw2008/AtomGit-MCP-Server)
+- `ATOMGIT_TOKEN`
 
-# 2. 设置环境变量
-export ATOMGIT_TOKEN="your-personal-access-token"
+AtomGit MCP Server 需要在第一次执行 AtomGit 任务之前，先按客户端级别完成安装和配置。当前仓库采用与官方 README 一致的思路：优先使用 `npx -y @atomgit.com/atomgit-mcp-server`，并在 MCP 客户端配置中注入 `ATOMGIT_TOKEN`。
 
-# 3. 获取 Token
-# 访问：https://atomgit.com/setting/token-classic
-```
+安装、权限和安全边界请看 [references/setup-and-safety.md](./references/setup-and-safety.md)。
 
-## 能力覆盖
+## 设计目标
 
-本 Skill 通过 AtomGit MCP Server 提供完整的平台操作能力：
-
-| 模块 | 工具数 | 主要能力 |
-|------|--------|----------|
-| **仓库** | 36 | 创建/查看/更新/删除/Fork/归档/转移/文件管理 |
-| **Pull Request** | 45 | 创建/审核/合并/评论/分配审查人/测试人 |
-| **Issue** | 29 | 创建/更新/关闭/评论/标签/里程碑/看板 |
-| **分支** | 8 | 创建/删除/保护规则 |
-| **Commit** | 12 | 提交历史/对比/评论/统计 |
-| **Release** | 8 | Tag/Release/版本发布 |
-| **Tag** | 8 | 标签管理/保护标签 |
-| **标签(Labels)** | 8 | 标签系统管理 |
-| **里程碑** | 5 | 里程碑追踪/进度报告 |
-| **用户** | 22 | 用户信息/SSH Keys/通知 |
-| **组织** | 18 | 组织管理/成员管理/自定义角色 |
-| **企业** | 15 | 企业成员管理(v8 API)/里程碑 |
-| **看板** | 8 | 项目看板/任务管理 |
-| **Webhook** | 6 | 事件推送配置 |
-| **搜索** | 3 | 仓库/Issue/用户搜索 |
-| **成员** | 6 | 仓库成员权限管理 |
-| **AIHub** | 7 | AI 文本生成/语音识别/图像检测/视频生成 |
-
-**详细工具列表请参阅 [atomgit/SKILL.md](./atomgit/SKILL.md)**
-
-## 设计思路
-
-- **单 Skill，一次安装**：用户只需安装一个 Skill，Claude 自动识别并调用相应工具
-- **MCP 原生集成**：通过 [AtomGit MCP Server](https://atomgit.com/zkxw2008/AtomGit-MCP-Server) 直接调用，无需手动处理 API
-- **范式驱动**：提供典型命令范式，Claude 举一反三处理变体需求
-
-## 工具依赖
-
-详见 [TOOLS.md](./TOOLS.md)
-
-## 相关项目
-
-- [AtomGit MCP Server](https://atomgit.com/zkxw2008/AtomGit-MCP-Server) — AtomGit 的 MCP 工具层
-- [AtomGit API 文档](https://docs.atomgit.com/docs/apis/) — 官方 API 参考
+- 只在明确的 AtomGit 上下文中触发，避免和 GitHub、GitLab 等平台混淆
+- 用渐进披露组织内容，减少主 skill 的上下文负担
+- 统一使用 `atomgit_*` 形式的 canonical method 名称，并提醒运行时名称可能带额外命名空间
 
 ## License
 
