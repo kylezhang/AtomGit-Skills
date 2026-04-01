@@ -1,0 +1,115 @@
+name: Publish to ClawHub
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Skill version to publish, for example 1.0.0"
+        required: true
+        type: string
+      tags:
+        description: "Comma-separated ClawHub tags"
+        required: false
+        default: "latest"
+        type: string
+      changelog:
+        description: "Release notes shown on ClawHub"
+        required: false
+        default: ""
+        type: string
+
+env:
+  SKILL_PATH: .
+  SKILL_SLUG: atomgit
+  SKILL_NAME: AtomGit
+
+jobs:
+  publish:
+    name: Publish skill bundle
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: clawhub-publish-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install ClawHub CLI
+        run: npm i -g clawhub
+
+      - name: Resolve publish metadata
+        id: meta
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          INPUT_TAGS: ${{ github.event.inputs.tags }}
+          INPUT_CHANGELOG: ${{ github.event.inputs.changelog }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            version="${INPUT_VERSION}"
+            tags="${INPUT_TAGS:-latest}"
+            changelog="${INPUT_CHANGELOG:-}"
+          else
+            version="${GITHUB_REF_NAME#v}"
+            tags="latest"
+            changelog="Release ${version}"
+          fi
+
+          if [[ -z "${version}" ]]; then
+            echo "Version is required." >&2
+            exit 1
+          fi
+
+          if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Version must be valid semver: ${version}" >&2
+            exit 1
+          fi
+
+          {
+            echo "version=${version}"
+            echo "tags=${tags}"
+            echo "changelog<<EOF"
+            echo "${changelog}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Validate skill files
+        run: |
+          set -euo pipefail
+          test -f "${SKILL_PATH}/SKILL.md"
+
+      - name: Authenticate to ClawHub
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${CLAWHUB_TOKEN}" ]]; then
+            echo "Missing GitHub secret: CLAWHUB_TOKEN" >&2
+            exit 1
+          fi
+
+          clawhub login --token "${CLAWHUB_TOKEN}" --no-browser --no-input
+          clawhub whoami
+
+      - name: Publish skill to ClawHub
+        run: |
+          set -euo pipefail
+
+          clawhub --no-input publish "${SKILL_PATH}" \
+            --slug "${SKILL_SLUG}" \
+            --name "${SKILL_NAME}" \
+            --version "${{ steps.meta.outputs.version }}" \
+            --changelog "${{ steps.meta.outputs.changelog }}" \
+            --tags "${{ steps.meta.outputs.tags }}"
