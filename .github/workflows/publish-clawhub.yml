@@ -23,7 +23,7 @@ on:
 
 env:
   SKILL_PATH: .
-  SKILL_SLUG: atomgit
+  SKILL_SLUG: atomgit-skills
   SKILL_NAME: AtomGit
 
 jobs:
