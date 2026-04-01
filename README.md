@@ -6,7 +6,6 @@
 
 - `SKILL.md`：给 agent 读的主入口，只保留触发语义、工具命名约定和高频工作流
 - `references/`：按 17 个 AtomGit 分类拆分的渐进披露文档，另含独立 setup/safety 文档
-- `agents/openai.yaml`：Codex UI 元数据
 
 ## 依赖
 
